@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~     Copyright (C) 2015  higherfrequencytrading.com
+  ~
+  ~     This program is free software: you can redistribute it and/or modify
+  ~     it under the terms of the GNU Lesser General Public License as published by
+  ~     the Free Software Foundation, either version 3 of the License.
+  ~
+  ~     This program is distributed in the hope that it will be useful,
+  ~     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~     GNU Lesser General Public License for more details.
+  ~
+  ~     You should have received a copy of the GNU Lesser General Public License
+  ~     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+<configuration packages="net.opegnhft.chronicle.logger,net.openhft.chronicle.logger.lo4j2">
+
+    <!-- ******************************************************************* -->
+    <!-- APPENDERS                                                           -->
+    <!-- ******************************************************************* -->
+
+    <appenders>
+
+        <Console name="STDOUT" target="SYSTEM_OUT">
+            <PatternLayout pattern="[CHRONOLOGY] [%-5p] %c - %m%n%throwable{none}"/>
+        </Console>
+
+        <!--<RandomAccessFile-->
+                <!--name="PERF-PLAIN-VANILLA"-->
+                <!--fileName="${sys:java.io.tmpdir}/chronicle-log4j2/perf-plain-vanilla.log"-->
+                <!--immediateFlush="false"-->
+
+                <!--append="false">-->
+            <!--<PatternLayout>-->
+                <!--<Pattern>%d|%t|%c|%m%n</Pattern>-->
+            <!--</PatternLayout>-->
+        <!--</RandomAccessFile>-->
+
+        <!--<RandomAccessFile-->
+                <!--name="PERF-PLAIN-INDEXED"-->
+                <!--fileName="${sys:java.io.tmpdir}/chronicle-log4j2/perf-plain-indexed.log"-->
+                <!--immediateFlush="false"-->
+
+                <!--append="false">-->
+            <!--<PatternLayout>-->
+                <!--<Pattern>%d|%t|%c|%m%n</Pattern>-->
+            <!--</PatternLayout>-->
+        <!--</RandomAccessFile>-->
+
+        <!-- *************************************************************** -->
+        <!-- VANILLA                                                         -->
+        <!-- *************************************************************** -->
+
+
+        <PontusLog4j2Appender name="BINARY-VANILLA-CHRONICLE">
+            <path>${sys:java.io.tmpdir}/chronicle-log4j2/binary-vanilla-chronicle</path>
+            <includeCallerData>false</includeCallerData>
+            <includeMappedDiagnosticContext>false</includeMappedDiagnosticContext>
+        </PontusLog4j2Appender>
+
+        <PontusLog4j2Appender name="BINARY-VANILLA-CHRONICLE-ASYNC-1">
+            <path>${sys:java.io.tmpdir}/chronicle-log4j2/binary-vanilla-chronicle-async-1</path>
+            <includeCallerData>false</includeCallerData>
+            <includeMappedDiagnosticContext>false</includeMappedDiagnosticContext>
+        </PontusLog4j2Appender>
+
+        <PontusLog4j2Appender name="BINARY-VANILLA-CHRONICLE-ASYNC-2">
+            <path>${sys:java.io.tmpdir}/chronicle-log4j2/binary-vanilla-chronicle-async-2</path>
+            <includeCallerData>false</includeCallerData>
+            <includeMappedDiagnosticContext>false</includeMappedDiagnosticContext>
+        </PontusLog4j2Appender>
+
+        <PontusLog4j2Appender name="BINARY-VANILLA-CHRONICLE-DISC-TEST1">
+            <path>${sys:java.io.tmpdir}/chronicle-log4j2/binary-vanilla-chronicle-disc-test1</path>
+            <includeCallerData>true</includeCallerData>
+            <includeMappedDiagnosticContext>false</includeMappedDiagnosticContext>
+        </PontusLog4j2Appender>
+
+        <PontusLog4j2Appender name="BINARY-VANILLA-CHRONICLE-DISC-TEST2">
+            <path>${sys:java.io.tmpdir}/chronicle-log4j2/binary-vanilla-chronicle-disc-test2</path>
+            <includeCallerData>true</includeCallerData>
+            <includeMappedDiagnosticContext>false</includeMappedDiagnosticContext>
+        </PontusLog4j2Appender>
+
+        <PontusLog4j2Appender name="BINARY-VANILLA-CHRONICLE-DISC-TEST3">
+            <path>${sys:java.io.tmpdir}/chronicle-log4j2/binary-vanilla-chronicle-disc-test3</path>
+            <includeCallerData>true</includeCallerData>
+            <includeMappedDiagnosticContext>false</includeMappedDiagnosticContext>
+        </PontusLog4j2Appender>
+
+    </appenders>
+
+    <!-- ******************************************************************* -->
+    <!-- LOGGERS                                                             -->
+    <!-- ******************************************************************* -->
+
+    <loggers>
+
+        <root level="all">
+            <appender-ref ref="STDOUT"/>
+        </root>
+
+
+        <!-- *************************************************************** -->
+        <!-- VANILLA                                                         -->
+        <!-- *************************************************************** -->
+
+        <logger name="binary-vanilla-chronicle" level="trace" additivity="false">
+            <appender-ref ref="BINARY-VANILLA-CHRONICLE"/>
+
+        </logger>
+        <logger name="binary-vanilla-chronicle-async-1" level="trace" additivity="false">
+            <appender-ref ref="BINARY-VANILLA-CHRONICLE-ASYNC-1"/>
+        </logger>
+        <logger name="binary-vanilla-chronicle-async-2" level="trace" additivity="false">
+            <appender-ref ref="BINARY-VANILLA-CHRONICLE-ASYNC-2"/>
+        </logger>
+
+        <logger name="binary-vanilla-chronicle-disc-test1" level="trace" additivity="false">
+            <appender-ref ref="BINARY-VANILLA-CHRONICLE-DISC-TEST1"/>
+        </logger>
+        <logger name="binary-vanilla-chronicle-disc-test2" level="trace" additivity="false">
+            <appender-ref ref="BINARY-VANILLA-CHRONICLE-DISC-TEST2"/>
+        </logger>
+        <logger name="binary-vanilla-chronicle-disc-test3" level="trace" additivity="false">
+            <appender-ref ref="BINARY-VANILLA-CHRONICLE-DISC-TEST3"/>
+        </logger>
+
+
+        <logger name="net.openhft" level="warn"/>
+
+    </loggers>
+
+</configuration>
