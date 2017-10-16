@@ -102,7 +102,11 @@
             <artifactId>chronicle-logger-log4j-1</artifactId>
             <version>1.1.1</version>
         </dependency>
-
+        <dependency>
+            <groupId>net.openhft</groupId>
+            <artifactId>chronicle-logger-logback</artifactId>
+            <version>1.1.1</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
