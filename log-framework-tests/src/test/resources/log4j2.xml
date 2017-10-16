@@ -14,7 +14,7 @@
   ~     You should have received a copy of the GNU Lesser General Public License
   ~     along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
-<configuration packages="net.opegnhft.chronicle.logger,net.openhft.chronicle.logger.lo4j2">
+<configuration packages="uk.gov.homeoffice.pontus.log4j1,uk.gov.homeoffice.pontus.log4j2">
 
     <!-- ******************************************************************* -->
     <!-- APPENDERS                                                           -->

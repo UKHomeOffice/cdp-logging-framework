@@ -265,8 +265,21 @@ public class LocalLogCollector {
     }
 
     public static void main(String[] args) {
-        if (ArrayUtils.getLength(args) != 3) {
-            throw new RuntimeException("Please provide three arguments - Yaml path, log pattern and base path");
+        if (ArrayUtils.getLength(args) != 1) {
+            System.err.println(
+                "\n\n The Local Log Collector reads logs from various shared memory areas, and redirects them to one or more syslog servers\n\nUsage: \n"+
+                "\tjava -cp <jars> uk.gov.homeoffice.pontus.LocalLogCollector <yaml file>\n\n" +
+                "\t The Yaml file should have following format:\n" +
+                "logPatternRegex: '.*'  # This is a pattern of memory-mapped (shared memory) chronicle \n" +
+                "                       # files with logs to read data from apps.\n" +
+                "\n" +
+                "basePath: '/tmp/log'   # This is the base directory from where to look for the memory-mapped files.\n" +
+                "receptorInfoList: # each line here enables a different log pattern to be sent to different syslog servers:\n" +
+                "  - { regex: '.*', type: 'LogReceptorLossless', syslogHostName: '10.229.101.111', syslogPort: 601 }\n" +
+                "#  - { regex: '.*', type: 'LogReceptorLossy', syslogHostName: '10.229.101.111', syslogPort: 504 }\n" +
+                "#  - { regex: '.*', type: 'LogReceptorEncrypted', syslogHostName: '10.229.101.111', syslogPort: 1999, keyStore: 'keystore path', keyStorePasswd: 'passwd', trustStore:'trustStorePath', trustStorePasswd: 'passwd'}\n" +
+                "\n");
+            System.exit(-1);
         }
         try {
             LocalLogCollectorConfig conf = getLocalLogCollectorConfigFromYamlFile(new File(args[0]));

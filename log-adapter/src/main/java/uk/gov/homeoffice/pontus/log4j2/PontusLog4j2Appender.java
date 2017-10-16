@@ -36,7 +36,7 @@ import java.lang.management.ManagementFactory;
         printObject = true)
 public class PontusLog4j2Appender extends net.openhft.chronicle.logger.log4j2.BinaryVanillaChronicleAppender {
 
-    public static final String uRunning = ManagementFactory.getRuntimeMXBean().getName()+"#";;
+    public static final String uRunning = ManagementFactory.getRuntimeMXBean().getName()+"#";
 
 
 
