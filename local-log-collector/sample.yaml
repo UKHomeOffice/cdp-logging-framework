@@ -1,0 +1,7 @@
+logPatternRegex: '.*'  # This is a pattern of memory-mapped (shared memory) chronicle files with logs to read data from apps.
+#basePath: '/tmp/log'   # This is the base directory from where to look for the memory-mapped files.
+basePath: 'c:/temp'   # This is the base directory from where to look for the memory-mapped files.
+receptorInfoList: # each line here enables a different log pattern to be sent to different syslog servers:
+#  - { regex: '.*', type: 'LogReceptorLossless', syslogHostName: '10.229.101.111', syslogPort: 601 }
+  - { regex: '.*', type: 'LogReceptorLossy', syslogHostName: '10.229.101.111', syslogPort: 504 }
+#  - { regex: '.*', type: 'LogReceptorEncrypted', syslogHostName: '10.229.101.111', syslogPort: 1999, keyStore: 'keystore path', keyStorePasswd: 'passwd', trustStore:'trustStorePath', trustStorePasswd: 'passwd'}

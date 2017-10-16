@@ -21,13 +21,14 @@ package uk.gov.homeoffice.pontus.logback;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.ThrowableProxy;
-import net.openhft.chronicle.logger.logback.BinaryVanillaChronicleAppender;
+import net.openhft.chronicle.logger.logback.TextVanillaChronicleAppender;
 
 import net.openhft.chronicle.logger.ChronicleLogWriter;
 
 import java.lang.management.ManagementFactory;
+import java.text.MessageFormat;
 
-public class PontusLogbackAppender extends BinaryVanillaChronicleAppender {
+public class PontusLogbackAppender extends TextVanillaChronicleAppender {
     public static final String uRunning = ManagementFactory.getRuntimeMXBean().getName() + "#";
 
 
@@ -45,9 +46,10 @@ public class PontusLogbackAppender extends BinaryVanillaChronicleAppender {
                 event.getThreadName(),
                 event.getLoggerName(),
 //                event.getMessage(),
-                uRunning.concat(event.getMessage()),
-                tp != null ? tp.getThrowable() : null,
-                event.getArgumentArray()
+                MessageFormat.format(uRunning.concat(event.getMessage()), event.getArgumentArray()),
+//                uRunning.concat(String.format(event.getMessage(),event.getArgumentArray())),
+                tp != null ? tp.getThrowable() : null
+
         );
     }
 }

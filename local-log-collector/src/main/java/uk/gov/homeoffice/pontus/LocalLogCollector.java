@@ -92,7 +92,7 @@ public class LocalLogCollector {
             GroupPrincipal group = Files.readAttributes(path, PosixFileAttributes.class, LinkOption.NOFOLLOW_LINKS).group();
             return new Pair<>(owner.getName(), group.getName());
         } catch (IOException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             return new Pair<>("UNKNOWN", "UNKNOWN");
         }
     }
@@ -190,20 +190,26 @@ public class LocalLogCollector {
             retVal = new HashMap<>();
             Map<String, String> innerMap = new HashMap<>();
             Pair<String, String> ownerAndGroup = extractOwnerAndGroupFromPid(pid);
+            final String URUNNING_DN_SUFFIX = ",DC=homeoffice,DC=GSI,DC=GOV,DC=UK";
+            StringBuilder  strBuild = new StringBuilder("UID=" )
+                    .append(ownerAndGroup.getFirst() )
+                    .append(",OU=").append(ownerAndGroup.getSecond())
+                    .append( URUNNING_DN_SUFFIX);
+            innerMap.put("uRunning", strBuild.toString());
 
-            String URUNNING_DN_SUFFIX = "DC\\=homeoffice,DC\\=GSI,DC\\=GOV,DC\\=UK";
-            String strBuild = "UID\\=" + ownerAndGroup.getFirst() +
-                    ",OU\\=" +
-                    ownerAndGroup.getSecond() +
-                    URUNNING_DN_SUFFIX;
-            innerMap.put("uRunning", strBuild);
+//            final String URUNNING_DN_SUFFIX = "DC\\=homeoffice,DC\\=GSI,DC\\=GOV,DC\\=UK";
+//            StringBuilder  strBuild = new StringBuilder("UID\\=" )
+//                    .append(ownerAndGroup.getFirst() )
+//                    .append(",OU\\=").append(ownerAndGroup.getSecond())
+//                    .append( URUNNING_DN_SUFFIX);
+//            innerMap.put("uRunning", strBuild.toString());
             String PEN = "12345";
             retVal.put("UserInfo@".concat(PEN), innerMap);
         }
         return retVal;
     }
 
-    public static void checkForNewChronicles(ArrayList<Chronicle> chronicles, ArrayList<ExcerptTailer> tailers, Pattern logPattern) throws IOException {
+    public static void checkForNewChronicles(ArrayList<Chronicle> chronicles, ArrayList<ExcerptTailer> tailers, LocalLogCollectorConfig config, Pattern logPattern) throws IOException {
         if (ChronicleDiscovery.checkNewChronicles()) {
             for (ExcerptTailer tailer : tailers) {
                 tailer.close();
@@ -213,18 +219,18 @@ public class LocalLogCollector {
             }
             chronicles.clear();
             tailers.clear();
-            ChronicleDiscovery.getTailers(chronicles, tailers, Paths.get(rootPath()), logPattern);
+            ChronicleDiscovery.getTailers(chronicles, tailers, Paths.get(config.basePath), logPattern);
         }
     }
 
     public static void processLogsNoLoop(ArrayList<Chronicle> chronicles, ArrayList<ExcerptTailer> tailers, LocalLogCollectorConfig config, Pattern logPattern) throws IOException {
-        checkForNewChronicles(chronicles, tailers, logPattern);
+        checkForNewChronicles(chronicles, tailers, config, logPattern);
         long recheckCounter = 60000;
         for (int j = 0, jlen = 500; j < jlen && recheckCounter > 0; j++) {
             for (int i = 0, ilen = tailers.size(); i < ilen; i++) {
                 ExcerptTailer tailer = tailers.get(i);
                 if (tailer.nextIndex()) {
-                    ChronicleLogEvent event = ChronicleLogHelper.decodeBinary(tailer);
+                    ChronicleLogEvent event = ChronicleLogHelper.decodeText(tailer);
                     String pid = getPidFromEvent(event);
                     String msg = event.getMessage();
 
