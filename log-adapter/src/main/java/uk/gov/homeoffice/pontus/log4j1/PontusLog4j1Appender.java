@@ -21,7 +21,7 @@ package uk.gov.homeoffice.pontus.log4j1;
 import org.apache.log4j.spi.LoggingEvent;
 
 import java.lang.management.ManagementFactory;
-public class PontusLog4j1Appender extends net.openhft.chronicle.logger.log4j1.TextVanillaChronicleAppender {
+public class PontusLog4j1Appender extends net.openhft.chronicle.logger.log4j1.BinaryVanillaChronicleAppender {
 
     public static final String uRunning = ManagementFactory.getRuntimeMXBean().getName()+"#";;
 
@@ -32,6 +32,7 @@ public class PontusLog4j1Appender extends net.openhft.chronicle.logger.log4j1.Te
 
     @Override
     public void doAppend( LoggingEvent event) {
+
 
         writer.write(
                 toChronicleLogLevel(event.getLevel()),

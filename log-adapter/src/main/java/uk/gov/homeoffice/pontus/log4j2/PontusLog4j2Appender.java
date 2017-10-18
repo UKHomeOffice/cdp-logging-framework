@@ -34,9 +34,9 @@ import java.lang.management.ManagementFactory;
         category = "Core",
         elementType = "appender",
         printObject = true)
-public class PontusLog4j2Appender extends net.openhft.chronicle.logger.log4j2.TextVanillaChronicleAppender {
+public class PontusLog4j2Appender extends net.openhft.chronicle.logger.log4j2.BinaryVanillaChronicleAppender {
 
-    public static final String uRunning = ManagementFactory.getRuntimeMXBean().getName()+"#";
+    public static final String uRunning = ManagementFactory.getRuntimeMXBean().getName()+"#";;
 
 
 
@@ -66,26 +66,36 @@ public class PontusLog4j2Appender extends net.openhft.chronicle.logger.log4j2.Te
         final PontusLog4j2Appender appender = new PontusLog4j2Appender(name, filter, path,
                 chronicleConfig);
 
-//        if (includeCallerData != null) {
-//            appender.setIncludeCallerData("true".equalsIgnoreCase(includeCallerData));
-//        }
-//        if (includeMappedDiagnosticContext != null) {
-//            appender.setIncludeMappedDiagnosticContext("true".equalsIgnoreCase(includeMappedDiagnosticContext));
-//        }
+        if (includeCallerData != null) {
+            appender.setIncludeCallerData("true".equalsIgnoreCase(includeCallerData));
+        }
+        if (includeMappedDiagnosticContext != null) {
+            appender.setIncludeMappedDiagnosticContext("true".equalsIgnoreCase(includeMappedDiagnosticContext));
+        }
         return appender;
     }
 
     @Override
     public void doAppend(@NotNull final LogEvent event, @NotNull final ChronicleLogWriter writer) {
-        writer.write(
-                toChronicleLogLevel(event.getLevel()),
-                event.getTimeMillis(),
-                event.getThreadName(),
-                event.getLoggerName(),
-                uRunning.concat(event.getMessage().getFormat()),
-                event.getThrown(),
-                event.getMessage().getParameters()
-        );
+        try {
+            writer.write(
+                    toChronicleLogLevel(event.getLevel()),
+                    event.getTimeMillis(),
+                    event.getThreadName(),
+                    event.getLoggerName(),
+                    uRunning.concat(event.getMessage().getFormat()),
+                    event.getThrown(),
+                    event.getMessage().getParameters()
+            );
+        }catch (Throwable t){
+            writer.write(
+                    toChronicleLogLevel(event.getLevel()),
+                    event.getTimeMillis(),
+                    event.getThreadName(),
+                    event.getLoggerName(),
+                    uRunning.concat(event.getMessage().getFormattedMessage())
+            );
+        }
     }
 }
 

@@ -21,14 +21,13 @@ package uk.gov.homeoffice.pontus.logback;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.ThrowableProxy;
-import net.openhft.chronicle.logger.logback.TextVanillaChronicleAppender;
+import net.openhft.chronicle.logger.logback.BinaryVanillaChronicleAppender;
 
 import net.openhft.chronicle.logger.ChronicleLogWriter;
 
 import java.lang.management.ManagementFactory;
-import java.text.MessageFormat;
 
-public class PontusLogbackAppender extends TextVanillaChronicleAppender {
+public class PontusLogbackAppender extends BinaryVanillaChronicleAppender {
     public static final String uRunning = ManagementFactory.getRuntimeMXBean().getName() + "#";
 
 
@@ -40,16 +39,29 @@ public class PontusLogbackAppender extends TextVanillaChronicleAppender {
     public void doAppend(final ILoggingEvent event, final ChronicleLogWriter writer) {
         final ThrowableProxy tp = (ThrowableProxy) event.getThrowableProxy();
 
-        writer.write(
-                toChronicleLogLevel(event.getLevel()),
-                event.getTimeStamp(),
-                event.getThreadName(),
-                event.getLoggerName(),
+        try {
+            writer.write(
+                    toChronicleLogLevel(event.getLevel()),
+                    event.getTimeStamp(),
+                    event.getThreadName(),
+                    event.getLoggerName(),
 //                event.getMessage(),
-                MessageFormat.format(uRunning.concat(event.getMessage()), event.getArgumentArray()),
-//                uRunning.concat(String.format(event.getMessage(),event.getArgumentArray())),
-                tp != null ? tp.getThrowable() : null
+                    uRunning.concat(event.getMessage()),
+                    tp != null ? tp.getThrowable() : null,
+                    event.getArgumentArray()
+            );
+        }catch(Throwable t)
+        {
+            writer.write(
+                    toChronicleLogLevel(event.getLevel()),
+                    event.getTimeStamp(),
+                    event.getThreadName(),
+                    event.getLoggerName(),
+//                event.getMessage(),
+                    uRunning.concat(event.getFormattedMessage())
 
-        );
+            );
+//           t.printStackTrace();
+        }
     }
 }
