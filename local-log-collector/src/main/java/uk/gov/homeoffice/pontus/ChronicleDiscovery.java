@@ -3,6 +3,7 @@ package uk.gov.homeoffice.pontus;
 import net.openhft.chronicle.Chronicle;
 import net.openhft.chronicle.ChronicleQueueBuilder;
 import net.openhft.chronicle.ExcerptTailer;
+import org.apache.commons.collections.set.SynchronizedSet;
 import org.graylog2.syslog4j.util.SyslogUtility;
 
 import java.io.IOException;
@@ -10,13 +11,19 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 
 public class ChronicleDiscovery {
 
     public static AtomicBoolean newDataAvailable = new AtomicBoolean(false);
     public static volatile boolean threadRunning = false;
+
+    public static Set<Path> currPathList = new ConcurrentSkipListSet<>();
+    public static AtomicLong lastTimeChecked = new AtomicLong(0L);
 
 
     /**
@@ -70,43 +77,68 @@ public class ChronicleDiscovery {
             }
 
         }
+
     }
 
     private static void addChronicleAndExcerptTrailerToLists(Path fileNamePath, ArrayList<Chronicle> chronicles,
                                                              ArrayList<ExcerptTailer> tailers) throws IOException {
-        Chronicle chronicle = ChronicleQueueBuilder.vanilla(fileNamePath.toFile()).build();
-        ExcerptTailer tailer = chronicle.createTailer().toStart();
-        tailers.add(tailer);
-        chronicles.add(chronicle);
+
+
+            Chronicle chronicle = ChronicleQueueBuilder.vanilla(fileNamePath.toFile()).build();
+            ExcerptTailer tailer = chronicle.createTailer().toStart();
+            tailers.add(tailer);
+            chronicles.add(chronicle);
+
     }
 
-    public static void checkForNewFiles(Path baseDir, Pattern matchingPattern) throws IOException {
-        long lastTimeChecked = 0L;
+    public static void setNewFiles(boolean newFiles) throws IOException {
+        newDataAvailable.set(false);
+    }
+
+
+        public static void checkForNewFiles(Path baseDir, Pattern matchingPattern) throws IOException {
         DirectoryStream<Path> dirStream = Files.newDirectoryStream(baseDir);
         if (matchingPattern != null) {
             for (Path p : dirStream) {
                 if (p.toFile().isDirectory()) {
                     Path fileNamePath = p.getFileName();
                     String fileName = fileNamePath.toString();
-                    if (matchingPattern.matcher(fileName).matches()) {
-                        if (p.toFile().lastModified() >= lastTimeChecked) {
+                    if (matchingPattern.matcher(fileName).matches())// &&
+//                            !currPathList.contains(fileNamePath)) {
+                    {
+                        if (p.toFile().lastModified() > lastTimeChecked.get()) {
+                            lastTimeChecked.set(p.toFile().lastModified());
+//                            currPathList.add(fileNamePath);
+
                             newDataAvailable.set(true);
+//                            lastTimeChecked.set(System.currentTimeMillis());
                             break;
                         }
+
                     }
                 }
+
             }
         } else {
             for (Path p : dirStream) {
-                if (p.toFile().isDirectory()) {
-                    if (p.toFile().lastModified() >= lastTimeChecked) {
+                if (p.toFile().isDirectory() &&
+                !currPathList.contains(p)) {
+
+                    if (p.toFile().lastModified() > lastTimeChecked.get()) {
+
+                        currPathList.add(p);
                         newDataAvailable.set(true);
+                        lastTimeChecked.set(p.toFile().lastModified());
+
+
                         break;
                     }
                 }
+
             }
 
         }
+        dirStream.close();
         SyslogUtility.sleep(10000);
     }
 

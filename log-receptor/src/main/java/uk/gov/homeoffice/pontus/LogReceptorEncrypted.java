@@ -9,11 +9,12 @@ public class LogReceptorEncrypted extends LogReceptor {
 
     public LogReceptorEncrypted(String keyStore, String trustStore, String keystorePass, String trustStorePass,
                                 String syslogInstanceName, String procId, String defaultMsgHostName,
-                                String defaultAppName, int defaultFacility, String syslogServerHostName, int port) {
+                                String defaultAppName, int defaultFacility, String syslogServerHostName, int port, boolean threaded) {
         conf.setKeyStore(keyStore);
         conf.setKeyStorePassword(keystorePass);
         conf.setTrustStore(trustStore);
         conf.setTrustStorePassword(trustStorePass);
+        conf.setThreaded(threaded);
         super.init(conf, procId, syslogInstanceName, defaultMsgHostName, defaultAppName, defaultFacility,
                 syslogServerHostName, port);
     }

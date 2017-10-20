@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.openhft.chronicle.Chronicle;
 import net.openhft.chronicle.ExcerptTailer;
+import net.openhft.chronicle.VanillaChronicle;
 import net.openhft.chronicle.logger.ChronicleLog;
 import net.openhft.chronicle.logger.ChronicleLogEvent;
 import net.openhft.chronicle.logger.ChronicleLogHelper;
@@ -146,18 +147,20 @@ public class LocalLogCollector {
         return "Pontus";
     }
 
-    public static LogReceptor getLogReceptor(LocalLogCollectorConfig infoList, ChronicleLogEvent event, String pid)
+    public static LogReceptor getLogReceptor(ExcerptTailer tailer, LocalLogCollectorConfig infoList, ChronicleLogEvent event, String pid)
             throws UnknownHostException {
-        String key = event.getLoggerName().concat(pid);
+//        String key = event.getLoggerName().concat(pid);
+        String key = pid;
         LogReceptor lr = (LogReceptor) logReceptors.get(key);
         if (lr == null) {
             String defaultMsgHostName = InetAddress.getLocalHost().getHostName();
             String loggerName = event.getLoggerName();
             LogReceptorInfo lri = getLogReceptorInfoFromList(loggerName, infoList);
             int defaultFacility = lri.getFacility();
-            String defaultAppName = getAppNameFromLoggerName(loggerName);
+            String defaultAppName = tailer.chronicle().name(); // getAppNameFromLoggerName(loggerName);
             String syslogServerHostName = lri.getSyslogHostName();
             int port = lri.getSyslogPort();
+            boolean threaded = lri.isThreaded();
             switch (lri.getType()) {
                 case "LogReceptorLossless":
                     lr = new LogReceptorLossless(key, pid, defaultMsgHostName, defaultAppName, defaultFacility,
@@ -170,7 +173,7 @@ public class LocalLogCollector {
                 case "LogReceptorEncrypted":
                     lr = new LogReceptorEncrypted(lri.getKeyStore(), lri.getTrustStore(),
                             lri.getKeyStorePasswd(), lri.getTrustStorePasswd(),
-                            key, pid, defaultMsgHostName, defaultAppName, defaultFacility, syslogServerHostName, port);
+                            key, pid, defaultMsgHostName, defaultAppName, defaultFacility, syslogServerHostName, port, threaded);
                     break;
                 default:
                     lr = new LogReceptorLossless(key, pid, defaultMsgHostName, defaultAppName, defaultFacility,
@@ -190,19 +193,19 @@ public class LocalLogCollector {
             retVal = new HashMap<>();
             Map<String, String> innerMap = new HashMap<>();
             Pair<String, String> ownerAndGroup = extractOwnerAndGroupFromPid(pid);
-            final String URUNNING_DN_SUFFIX = ",DC=homeoffice,DC=GSI,DC=GOV,DC=UK";
-            StringBuilder  strBuild = new StringBuilder("UID=" )
-                    .append(ownerAndGroup.getFirst() )
-                    .append(",OU=").append(ownerAndGroup.getSecond())
-                    .append( URUNNING_DN_SUFFIX);
-            innerMap.put("uRunning", strBuild.toString());
-
-//            final String URUNNING_DN_SUFFIX = "DC\\=homeoffice,DC\\=GSI,DC\\=GOV,DC\\=UK";
-//            StringBuilder  strBuild = new StringBuilder("UID\\=" )
+//            final String URUNNING_DN_SUFFIX = ",DC=homeoffice,DC=GSI,DC=GOV,DC=UK";
+//            StringBuilder  strBuild = new StringBuilder("UID=" )
 //                    .append(ownerAndGroup.getFirst() )
-//                    .append(",OU\\=").append(ownerAndGroup.getSecond())
+//                    .append(",OU=").append(ownerAndGroup.getSecond())
 //                    .append( URUNNING_DN_SUFFIX);
 //            innerMap.put("uRunning", strBuild.toString());
+
+            final String URUNNING_DN_SUFFIX = "DC\\=homeoffice,DC\\=GSI,DC\\=GOV,DC\\=UK";
+            StringBuilder  strBuild = new StringBuilder("UID\\=" )
+                    .append(ownerAndGroup.getFirst() )
+                    .append(",OU\\=").append(ownerAndGroup.getSecond())
+                    .append( URUNNING_DN_SUFFIX);
+            innerMap.put("uRunning", strBuild.toString());
             String PEN = "12345";
             retVal.put("UserInfo@".concat(PEN), innerMap);
         }
@@ -211,6 +214,7 @@ public class LocalLogCollector {
 
     public static void checkForNewChronicles(ArrayList<Chronicle> chronicles, ArrayList<ExcerptTailer> tailers, LocalLogCollectorConfig config, Pattern logPattern) throws IOException {
         if (ChronicleDiscovery.checkNewChronicles()) {
+            ChronicleDiscovery.setNewFiles(false);
             for (ExcerptTailer tailer : tailers) {
                 tailer.close();
             }
@@ -230,14 +234,14 @@ public class LocalLogCollector {
             for (int i = 0, ilen = tailers.size(); i < ilen; i++) {
                 ExcerptTailer tailer = tailers.get(i);
                 if (tailer.nextIndex()) {
-                    ChronicleLogEvent event = ChronicleLogHelper.decodeText(tailer);
+                    ChronicleLogEvent event = ChronicleLogHelper.decodeBinary(tailer);
                     String pid = getPidFromEvent(event);
                     String msg = event.getMessage();
 
                     String formattedMessage = MessageFormatter.arrayFormat(msg.substring(msg.indexOf('#') + 1),
                             event.getArgumentArray()).getMessage();
 
-                    LogReceptor lr = getLogReceptor(config, event, pid);
+                    LogReceptor lr = getLogReceptor(tailer,config, event, pid);
 
                     LogReceptor.Severity sev = getSeverity(event.getLevel());
 
@@ -256,12 +260,14 @@ public class LocalLogCollector {
         ArrayList<Chronicle> chronicles = new ArrayList<>();
         ArrayList<ExcerptTailer> tailers = new ArrayList<>();
 
-        try {
-            while (true) {
-                processLogsNoLoop(chronicles, tailers, conf, logPattern);
+        while (true) {
+            try {
+                while (true) {
+                    processLogsNoLoop(chronicles, tailers, conf, logPattern);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 

@@ -39,29 +39,41 @@ public class PontusLogbackAppender extends BinaryVanillaChronicleAppender {
     public void doAppend(final ILoggingEvent event, final ChronicleLogWriter writer) {
         final ThrowableProxy tp = (ThrowableProxy) event.getThrowableProxy();
 
-        try {
+//        try {
             writer.write(
                     toChronicleLogLevel(event.getLevel()),
                     event.getTimeStamp(),
                     event.getThreadName(),
                     event.getLoggerName(),
 //                event.getMessage(),
-                    uRunning.concat(event.getMessage()),
+                    uRunning.concat(event.getFormattedMessage()),
                     tp != null ? tp.getThrowable() : null,
-                    event.getArgumentArray()
-            );
-        }catch(Throwable t)
-        {
-            writer.write(
-                    toChronicleLogLevel(event.getLevel()),
-                    event.getTimeStamp(),
-                    event.getThreadName(),
-                    event.getLoggerName(),
-//                event.getMessage(),
-                    uRunning.concat(event.getFormattedMessage())
+                    null
 
             );
-//           t.printStackTrace();
-        }
+
+//            writer.write(
+//                    toChronicleLogLevel(event.getLevel()),
+//                    event.getTimeStamp(),
+//                    event.getThreadName(),
+//                    event.getLoggerName(),
+////                event.getMessage(),
+//                    uRunning.concat(event.getMessage()),
+//                    tp != null ? tp.getThrowable() : null,
+//                    event.getArgumentArray()
+//            );
+//        }catch(Throwable t)
+//        {
+//            writer.write(
+//                    toChronicleLogLevel(event.getLevel()),
+//                    event.getTimeStamp(),
+//                    event.getThreadName(),
+//                    event.getLoggerName(),
+////                event.getMessage(),
+//                    uRunning.concat(event.getFormattedMessage())
+//
+//            );
+////           t.printStackTrace();
+//        }
     }
 }

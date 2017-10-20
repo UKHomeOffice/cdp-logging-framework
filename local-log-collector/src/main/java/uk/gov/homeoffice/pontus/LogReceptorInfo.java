@@ -12,6 +12,17 @@ public class LogReceptorInfo {
     private String keyStorePasswd;
     private String trustStore;
     private String trustStorePasswd;
+    private boolean threaded;
+
+
+    public boolean isThreaded() {
+        return threaded;
+    }
+
+    public void setThreaded(boolean threaded) {
+        this.threaded = threaded;
+    }
+
 
     public String getRegex() {
         return regex;

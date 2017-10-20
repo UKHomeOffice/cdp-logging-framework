@@ -17,6 +17,7 @@ package uk.gov.homeoffice.pontus.log4j2;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import net.openhft.chronicle.logger.ChronicleLogWriter;
 import net.openhft.chronicle.logger.VanillaLogAppenderConfig;
 import net.openhft.lang.model.constraints.NotNull;
@@ -36,8 +37,8 @@ import java.lang.management.ManagementFactory;
         printObject = true)
 public class PontusLog4j2Appender extends net.openhft.chronicle.logger.log4j2.BinaryVanillaChronicleAppender {
 
-    public static final String uRunning = ManagementFactory.getRuntimeMXBean().getName()+"#";;
-
+    public static final String uRunning = ManagementFactory.getRuntimeMXBean().getName() + "#";
+    ;
 
 
     public PontusLog4j2Appender(
@@ -77,25 +78,27 @@ public class PontusLog4j2Appender extends net.openhft.chronicle.logger.log4j2.Bi
 
     @Override
     public void doAppend(@NotNull final LogEvent event, @NotNull final ChronicleLogWriter writer) {
-        try {
-            writer.write(
-                    toChronicleLogLevel(event.getLevel()),
-                    event.getTimeMillis(),
-                    event.getThreadName(),
-                    event.getLoggerName(),
-                    uRunning.concat(event.getMessage().getFormat()),
-                    event.getThrown(),
-                    event.getMessage().getParameters()
-            );
-        }catch (Throwable t){
-            writer.write(
-                    toChronicleLogLevel(event.getLevel()),
-                    event.getTimeMillis(),
-                    event.getThreadName(),
-                    event.getLoggerName(),
-                    uRunning.concat(event.getMessage().getFormattedMessage())
-            );
-        }
+//        try {
+//            writer.write(
+//                    toChronicleLogLevel(event.getLevel()),
+//                    event.getTimeMillis(),
+//                    event.getThreadName(),
+//                    event.getLoggerName(),
+//                    uRunning.concat(event.getMessage().getFormat()),
+//                    event.getThrown(),
+//                    event.getMessage().getParameters()
+//            );
+//        }catch (Throwable t){
+        writer.write(
+                toChronicleLogLevel(event.getLevel()),
+                event.getTimeMillis(),
+                event.getThreadName(),
+                event.getLoggerName(),
+                uRunning.concat(event.getMessage().getFormattedMessage()),
+                event.getThrown(),
+                null
+        );
+//        }
     }
 }
 
