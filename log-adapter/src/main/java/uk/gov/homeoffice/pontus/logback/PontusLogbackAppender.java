@@ -24,10 +24,12 @@ import ch.qos.logback.classic.spi.ThrowableProxy;
 import net.openhft.chronicle.logger.logback.BinaryVanillaChronicleAppender;
 
 import net.openhft.chronicle.logger.ChronicleLogWriter;
+import net.openhft.chronicle.logger.logback.TextVanillaChronicleAppender;
 
 import java.lang.management.ManagementFactory;
 
-public class PontusLogbackAppender extends BinaryVanillaChronicleAppender {
+public class PontusLogbackAppender extends TextVanillaChronicleAppender
+{
     public static final String uRunning = ManagementFactory.getRuntimeMXBean().getName() + "#";
 
 

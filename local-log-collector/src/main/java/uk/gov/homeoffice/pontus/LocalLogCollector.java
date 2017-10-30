@@ -234,7 +234,7 @@ public class LocalLogCollector {
             for (int i = 0, ilen = tailers.size(); i < ilen; i++) {
                 ExcerptTailer tailer = tailers.get(i);
                 if (tailer.nextIndex()) {
-                    ChronicleLogEvent event = ChronicleLogHelper.decodeBinary(tailer);
+                    ChronicleLogEvent event = ChronicleLogHelper.decodeText(tailer);
                     String pid = getPidFromEvent(event);
                     String msg = event.getMessage();
 
