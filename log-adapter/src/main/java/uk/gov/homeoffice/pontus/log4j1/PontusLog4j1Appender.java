@@ -18,7 +18,10 @@ package uk.gov.homeoffice.pontus.log4j1;
  * limitations under the License.
  */
 
+import net.openhft.chronicle.logger.ChronicleLogLevel;
+import org.apache.log4j.Level;
 import org.apache.log4j.spi.LoggingEvent;
+import org.apache.log4j.spi.ThrowableInformation;
 
 import java.lang.management.ManagementFactory;
 public class PontusLog4j1Appender extends net.openhft.chronicle.logger.log4j1.BinaryVanillaChronicleAppender {
@@ -29,9 +32,29 @@ public class PontusLog4j1Appender extends net.openhft.chronicle.logger.log4j1.Bi
         super();
     }
 
+    public static ChronicleLogLevel toChronicleLogLevel(final Level level) {
+        switch(level.toInt()) {
+            case Level.DEBUG_INT:
+                return ChronicleLogLevel.DEBUG;
+            case Level.TRACE_INT:
+                return ChronicleLogLevel.TRACE;
+            case Level.INFO_INT:
+                return ChronicleLogLevel.INFO;
+            case Level.WARN_INT:
+                return ChronicleLogLevel.WARN;
+            case Level.FATAL_INT:
+            case Level.ERROR_INT:
+                return ChronicleLogLevel.ERROR;
+            default:
+                throw new IllegalArgumentException(level.toInt() + " not a valid level value");
+        }
+    }
+
 
     @Override
     public void doAppend( LoggingEvent event) {
+
+      ThrowableInformation ti = event.getThrowableInformation();
 
 
         writer.write(
@@ -40,7 +63,7 @@ public class PontusLog4j1Appender extends net.openhft.chronicle.logger.log4j1.Bi
                 event.getThreadName(),
                 event.getLoggerName(),
                 uRunning.concat(event.getMessage().toString()),
-                event.getThrowableInformation().getThrowable());
+                ti == null? null :ti.getThrowable());
     }
 }
 
