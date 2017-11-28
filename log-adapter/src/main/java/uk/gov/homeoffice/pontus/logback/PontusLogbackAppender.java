@@ -49,8 +49,7 @@ public class PontusLogbackAppender extends TextVanillaChronicleAppender
                     event.getLoggerName(),
 //                event.getMessage(),
                     uRunning.concat(event.getFormattedMessage()),
-                    tp != null ? tp.getThrowable() : null,
-                    null
+                    tp != null ? tp.getThrowable() : null
 
             );
 
